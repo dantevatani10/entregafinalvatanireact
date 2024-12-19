@@ -1,41 +1,27 @@
-import { createContext, useState } from "react";
+import React, { createContext, useState, useContext } from 'react';
 
 export const CartContext = createContext();
 
+export const useCart = () => useContext(CartContext);
+
 export const CartContextProvider = ({ children }) => {
-  const [cart, setCart] = useState([]); // {3} {5} {4} --> 12
+  const [cart, setCart] = useState([]);
 
-  // const addToCart = (product) => {
-  //   // si esta , que no lo agregue
-  //   // si no esta, que si lo agregue
-  //   // let isInCart = cart.filter ( el => el.id === product.id ) // []
-  //   // let isInCart = cart.find( el => el.id === product.id ) // elemento || undefined
-  //   let isInCart = cart.some((el) => el.id === product.id); // booleano
-
-  //   if (isInCart) {
-  //     console.log("se ejecuta el if");
-  //     // generar un nuevo array, igual que el anterior pero con un { } modificado
-  //     // con ese array remplazar el anteriror
-
-  //     let nuevoArray = cart.map((elemento) => {
-  //       if (elemento.id === product.id) {
-  //         return {
-  //           ...elemento,
-  //           quantity: elemento.quantity + product.quantity,
-  //         };
-  //       } else {
-  //         return elemento;
-  //       }
-  //     }); // [{}{}{}]
-
-  //     setCart(nuevoArray);
-  //   } else {
-  //     console.log("se ejecuta el else");
-  //     setCart([...cart, product]);
-  //   }
-  // };
-  const addToCart = (product) => {
-    setCart([...cart, product]);
+  const addToCart = (product, quantity) => {
+    setCart(prevCart => {
+      const existingItemIndex = prevCart.findIndex(item => item.id === product.id);
+      
+      if (existingItemIndex !== -1) {
+        const updatedCart = [...prevCart];
+        updatedCart[existingItemIndex] = {
+          ...updatedCart[existingItemIndex],
+          quantity: updatedCart[existingItemIndex].quantity + quantity
+        };
+        return updatedCart;
+      } else {
+        return [...prevCart, { ...product, quantity }];
+      }
+    });
   };
 
   const resetCart = () => {
@@ -43,17 +29,25 @@ export const CartContextProvider = ({ children }) => {
   };
 
   const removeProduct = (id) => {
-    let filteredArray = cart.filter((elemento) => elemento.id !== id);
-    setCart(filteredArray);
+    setCart(prevCart => prevCart.filter(item => item.id !== id));
   };
 
   const getTotalPrice = () => {
-    let total = cart.reduce((total, elemento) => {
-      return total + elemento.price * elemento.quantity;
-    }, 0);
-    return total;
+    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   };
 
-  let data = { cart, addToCart, resetCart, removeProduct, getTotalPrice };
+  const getCartItemsCount = () => {
+    return cart.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  const data = { 
+    cart, 
+    addToCart, 
+    resetCart, 
+    removeProduct, 
+    getTotalPrice,
+    getCartItemsCount
+  };
+
   return <CartContext.Provider value={data}>{children}</CartContext.Provider>;
 };

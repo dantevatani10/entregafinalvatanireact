@@ -1,9 +1,10 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import { CartContext } from "../../../context/CartContext";
+import { useCart } from "../../../context/CartContext";
 
 const CartWidget = () => {
-  const { cart } = useContext(CartContext);
+  const { getCartItemsCount } = useCart();
+  const itemCount = getCartItemsCount();
 
   return (
     <Link
@@ -11,9 +12,9 @@ const CartWidget = () => {
       className="d-inline-flex align-items-center position-relative text-decoration-none text-light p-2"
     >
       <i className="bi bi-cart fs-4"></i>
-      {cart.length > 0 && (
+      {itemCount > 0 && (
         <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-          {cart.length}
+          {itemCount}
           <span className="visually-hidden">items in cart</span>
         </span>
       )}

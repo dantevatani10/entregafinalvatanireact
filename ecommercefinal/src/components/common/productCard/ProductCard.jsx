@@ -2,21 +2,22 @@ import { Link } from "react-router-dom";
 
 const ProductCard = ({ product }) => {
   return (
-    <div className="card h-100 shadow-sm">
-      <img
-        src={product.img}
-        alt={product.title}
-        className="card-img-top img-fluid"
-        style={{ height: "200px", objectFit: "cover" }}
-      />
-      <div className="card-body d-flex flex-column">
-        <h5 className="card-title">{product.title}</h5>
-        <p className="card-text flex-grow-1">{product.description}</p>
-        <div className="d-flex justify-content-between align-items-center mt-3">
+    <div className="card shadow-sm rounded" style={{ width: "300px", height: "450px", overflow: "hidden" }}>
+      <div style={{ height: "300px" }}>
+        <img
+          src={product.img}
+          alt={product.title}
+          className="card-img-top"
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      </div>
+      <div className="card-body d-flex flex-column justify-content-between" style={{ height: "150px" }}>
+        <h5 className="card-title text-truncate">{product.title}</h5>
+        <div className="d-flex justify-content-between align-items-center">
           <span className="h5 mb-0">${product.price}</span>
           <Link
             to={`/itemDetail/${product.id}`}
-            className="btn btn-primary"
+            className="btn btn-primary btn-sm"
           >
             Ver detalle
           </Link>

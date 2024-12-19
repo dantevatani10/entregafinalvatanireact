@@ -1,67 +1,74 @@
-import { useEffect } from "react";
-import { useState } from "react";
-// import { products } from "../../../products";
-import ItemList from "./ItemList";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import ItemList from "./ItemList";
 import { PuffLoader } from "react-spinners";
-import { db } from "../../../firebaseConfig";
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import { db } from "../../../firebaseConfig.js";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 const ItemListContainer = () => {
   const [myProducts, setMyProducts] = useState([]);
+  const [marcas, setMarcas] = useState([]);
+  const [selectedMarca, setSelectedMarca] = useState("");
 
   const { name } = useParams();
 
   useEffect(() => {
-    // traer los productos de firestore
     const productsCollection = collection(db, "products");
     let refCollection = productsCollection;
+
     if (name) {
-      const productsCollectionFiltered = query(
-        productsCollection,
-        where("category", "==", name)
-      );
-      refCollection = productsCollectionFiltered;
+      refCollection = query(productsCollection, where("category", "==", name));
     }
-    // filtrado en la DB
-    // y luego le pedimos los documentos
+
+    if (selectedMarca) {
+      refCollection = query(refCollection, where("marca", "==", selectedMarca));
+    }
+
     const getProducts = getDocs(refCollection);
     getProducts.then((res) => {
-      let products = res.docs.map((elemento) => {
-        return { ...elemento.data(), id: elemento.id };
-      }); // []
+      let products = res.docs.map((elemento) => ({
+        ...elemento.data(),
+        id: elemento.id,
+      }));
       setMyProducts(products);
+
+      // Extraer marcas únicas
+      const uniqueMarcas = [...new Set(products.map((product) => product.marca))];
+      setMarcas(uniqueMarcas);
     });
-  }, [name]);
+  }, [name, selectedMarca]);
 
-  // const agregarProductos = () => {
-  //   let productsCollection = collection(db, "products");
-
-  //   products.forEach((elemento) => {
-  //     addDoc(productsCollection, elemento);
-  //   });
-  // };
+  const handleMarcaChange = (e) => {
+    setSelectedMarca(e.target.value);
+  };
 
   return (
-    <div>
-      <h2>Aca los productos</h2>
-      {/* <button onClick={agregarProductos}>Agregar productos</button> */}
-      {myProducts.length === 0 ? (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
+    <div className="container mt-4">
+      <h2 className="mb-4">Nuestros Productos</h2>
+      <div className="mb-4">
+        <select
+          className="form-select"
+          value={selectedMarca}
+          onChange={handleMarcaChange}
         >
+          <option value="">Todas las Marcas</option>
+          {marcas.map((marca) => (
+            <option key={marca} value={marca}>
+              {marca}
+            </option>
+          ))}
+        </select>
+      </div>
+      {myProducts.length === 0 ? (
+        <div className="d-flex justify-content-center">
           <PuffLoader color="steelblue" />
         </div>
       ) : (
         <ItemList myProducts={myProducts} />
       )}
-      <h4>Aca el final de la pagina</h4>
     </div>
   );
 };
 
 export default ItemListContainer;
+
