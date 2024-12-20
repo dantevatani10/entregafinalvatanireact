@@ -6,6 +6,11 @@
   "engines": {
     "node": "18.x"
   },
+  "overrides": {
+    "rollup": {
+      "@rollup/rollup-linux-x64-gnu": false
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
